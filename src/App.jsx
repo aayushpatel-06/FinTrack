@@ -46,17 +46,17 @@ function App() {
   const handleLogout = () => signOut(auth);
 
   const updateBudget = async (val) => {
-  // 1. Allow the UI state to change (even to an empty string) so you can erase it
+  // 1. Allow state to hold the string so the user can erase/type freely
   setMonthlyBudget(val); 
 
   const num = parseFloat(val);
 
-  // 2. Validation: Only save to Firebase if it is a valid number AND greater than 0
+  // 2. VALIDATION: Only sync with Firebase if the value is greater than 0
   if (user && !isNaN(num) && num > 0) {
     try {
       await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });
     } catch (e) {
-      console.error("Error saving budget:", e);
+      console.error("Error syncing budget:", e);
     }
   }
 };
@@ -149,16 +149,22 @@ function App() {
               <div className="flex items-center gap-5">
                 <label htmlFor="budget-input"><Settings size={32} className="text-blue-600" /></label>
                 <div className="flex-1">
-                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Monthly Limit</p>
-                  <input 
-                    id="budget-input" 
-                    type="number" 
-                    value={monthlyBudget} 
-                    onChange={(e) => updateBudget(e.target.value)}
-                    onWheel={(e) => e.target.blur()} // DISABLE SCROLL
-                    className="bg-transparent font-black text-4xl w-full focus:outline-none text-gray-900" 
-                  />
-                </div>
+  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Monthly Limit</p>
+  <input 
+    id="budget-input" 
+    type="number" 
+    min="1" // Browser-level protection: value must be greater than or equal to 1
+    value={monthlyBudget} 
+    onChange={(e) => updateBudget(e.target.value)}
+    onWheel={(e) => e.target.blur()} // Disable mouse-wheel scrolling
+    placeholder="Enter limit"
+    className="bg-transparent font-black text-4xl w-full focus:outline-none text-gray-900" 
+  />
+  {/* Optional: Show a small warning if the value is invalid */}
+  {monthlyBudget !== '' && parseFloat(monthlyBudget) <= 0 && (
+    <p className="text-[10px] text-rose-500 font-bold uppercase mt-1">Value must be greater than 0</p>
+  )}
+</div>
               </div>
             </div>
           </div>
