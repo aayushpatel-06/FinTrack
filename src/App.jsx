@@ -25,13 +25,13 @@ function App() {
       setUser(currentUser);
       setLoading(false);
       if (currentUser) {
-        // Fetch User Budget from Firestore
+        // FETCH PERSISTENT BUDGET
         const budgetRef = doc(db, 'users', currentUser.uid);
         onSnapshot(budgetRef, (docSnap) => {
           if (docSnap.exists()) setMonthlyBudget(docSnap.data().budget || 10000);
         });
 
-        // Fetch Expenses
+        // FETCH EXPENSES
         const q = query(collection(db, 'expenses'), where('uid', '==', currentUser.uid), orderBy('createdAt', 'desc'));
         const unsubscribeData = onSnapshot(q, (snapshot) => {
           setExpenses(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
@@ -57,8 +57,9 @@ function App() {
   const saveExpense = async (e) => {
     e.preventDefault(); 
     const numAmount = parseFloat(amount);
+    // VALIDATION: POSITIVE VALUES ONLY
     if (!amount || numAmount <= 0) {
-      alert("Please enter a positive amount");
+      alert("Please enter a positive amount greater than zero.");
       return;
     }
     if (!user) return;
@@ -77,7 +78,7 @@ function App() {
     setEditingId(exp.id); setAmount(exp.amount); setCategory(exp.category); setIsNeed(exp.isNeed);
   };
 
-  const deleteExpense = async (id) => { if (window.confirm("Delete record?")) await deleteDoc(doc(db, 'expenses', id)); };
+  const deleteExpense = async (id) => { if (window.confirm("Delete this record?")) await deleteDoc(doc(db, 'expenses', id)); };
 
   const totalSpent = expenses.reduce((sum, item) => sum + item.amount, 0);
   const percentageUsed = monthlyBudget > 0 ? (totalSpent / monthlyBudget) * 100 : 0;
@@ -139,7 +140,14 @@ function App() {
                 <label htmlFor="budget-input"><Settings size={32} className="text-blue-600" /></label>
                 <div className="flex-1">
                   <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Monthly Limit</p>
-                  <input id="budget-input" type="number" value={monthlyBudget} onChange={(e) => updateBudget(e.target.value)} className="bg-transparent font-black text-4xl w-full focus:outline-none text-gray-900" />
+                  <input 
+                    id="budget-input" 
+                    type="number" 
+                    value={monthlyBudget} 
+                    onChange={(e) => updateBudget(e.target.value)}
+                    onWheel={(e) => e.target.blur()} // DISABLE SCROLL
+                    className="bg-transparent font-black text-4xl w-full focus:outline-none text-gray-900" 
+                  />
                 </div>
               </div>
             </div>
@@ -159,6 +167,7 @@ function App() {
                  placeholder="0.00" 
                  value={amount} 
                  onChange={(e) => setAmount(e.target.value)}
+                 onWheel={(e) => e.target.blur()} // DISABLE SCROLL
                  className="w-full p-10 rounded-[3rem] bg-gray-50 border-none ring-4 ring-gray-100 text-6xl font-black outline-none text-gray-900" 
                />
             </div>
@@ -193,7 +202,7 @@ function App() {
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-8">Visual Breakdown</h3>
             <div style={{ width: '100%', height: '350px' }}>
               {mounted && (
-                <ResponsiveContainer>
+                <ResponsiveContainer key={mounted ? 'active' : 'idle'}>
                   <PieChart>
                     <Pie data={chartData} cx="50%" cy="50%" innerRadius={90} outerRadius={125} paddingAngle={12} dataKey="value" isAnimationActive={true}>
                       {chartData.map((e, i) => <Cell key={i} fill={COLORS[i]} cornerRadius={25} stroke="none" />)}
@@ -210,21 +219,21 @@ function App() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-8 pb-10">
           {expenses.map(exp => (
-            <div key={exp.id} className="bg-white/80 backdrop-blur-md border border-white p-10 rounded-[3.5rem] shadow-lg flex justify-between items-center group">
+            <div key={exp.id} className="bg-white/80 backdrop-blur-md border border-white p-10 rounded-[3.5rem] shadow-lg flex justify-between items-center">
               <div className="flex items-center gap-6 text-left">
                 <div className={`w-3 h-3 rounded-full ${exp.isNeed ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
                 <div>
                   <p className="font-black text-2xl text-gray-800 tracking-tighter">{exp.category}</p>
-                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{exp.createdAt?.toDate().toLocaleDateString() || '...'}</p>
+                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{exp.createdAt?.toDate().toLocaleDateString() || 'Saving...'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <p className="font-black text-3xl tracking-tighter">₹{exp.amount}</p>
                 <div className="flex flex-col gap-2">
-                  <button onClick={() => startEdit(exp)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white cursor-pointer transition-all"><Edit2 size={20}/></button>
-                  <button onClick={() => deleteExpense(exp.id)} className="p-3 bg-red-50 text-red-300 hover:bg-red-500 hover:text-white cursor-pointer transition-all"><Trash2 size={20}/></button>
+                  <button onClick={() => startEdit(exp)} className="p-2 bg-blue-50 text-blue-600 rounded-xl cursor-pointer"><Edit2 size={16}/></button>
+                  <button onClick={() => deleteExpense(exp.id)} className="p-2 bg-red-50 text-red-300 rounded-xl cursor-pointer"><Trash2 size={16}/></button>
                 </div>
               </div>
             </div>
