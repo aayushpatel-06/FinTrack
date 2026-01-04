@@ -46,13 +46,15 @@ function App() {
   const handleLogout = () => signOut(auth);
 
   const updateBudget = async (val) => {
-    const num = parseFloat(val) || 0;
-    if (num < 0) return; 
-    setMonthlyBudget(num);
-    if (user) {
-      await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });
-    }
-  };
+  // Allow the state to be empty while the user is typing
+  setMonthlyBudget(val); 
+
+  const num = parseFloat(val);
+  // Only sync with Firebase if it's a valid, non-negative number
+  if (user && !isNaN(num) && num >= 0) {
+    await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });
+  }
+};
 
   const saveExpense = async (e) => {
     e.preventDefault(); 
@@ -81,7 +83,10 @@ function App() {
   const deleteExpense = async (id) => { if (window.confirm("Delete this record?")) await deleteDoc(doc(db, 'expenses', id)); };
 
   const totalSpent = expenses.reduce((sum, item) => sum + item.amount, 0);
-  const percentageUsed = monthlyBudget > 0 ? (totalSpent / monthlyBudget) * 100 : 0;
+  // Add a fallback so percentageUsed doesn't become "Infinity"
+  const percentageUsed = (monthlyBudget && parseFloat(monthlyBudget) > 0) 
+  ? (totalSpent / parseFloat(monthlyBudget)) * 100 
+  : 0;
   
   const chartData = [
     { name: 'Needs', value: expenses.filter(e => e.isNeed).reduce((s, i) => s + i.amount, 0) || 0.1 },
