@@ -62,6 +62,15 @@ function App() {
     }
   };
 
+  // RESTORED: Edit logic to populate the form
+  const startEdit = (exp) => {
+    setEditingId(exp.id);
+    setAmount(exp.amount.toString());
+    setCategory(exp.category);
+    setIsNeed(exp.isNeed);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const saveExpense = async (e) => {
     e.preventDefault(); 
     const numAmount = parseFloat(amount);
@@ -72,10 +81,20 @@ function App() {
     if (!user) return;
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'expenses', editingId), { amount: numAmount, category, isNeed });
+        await updateDoc(doc(db, 'expenses', editingId), { 
+          amount: numAmount, 
+          category, 
+          isNeed 
+        });
         setEditingId(null);
       } else {
-        await addDoc(collection(db, 'expenses'), { uid: user.uid, amount: numAmount, category, isNeed, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'expenses'), { 
+          uid: user.uid, 
+          amount: numAmount, 
+          category, 
+          isNeed, 
+          createdAt: serverTimestamp() 
+        });
       }
       setAmount('');
     } catch (e) { alert(e.message); }
@@ -85,6 +104,8 @@ function App() {
 
   const totalSpent = expenses.reduce((sum, item) => sum + item.amount, 0);
   const remainingBalance = (parseFloat(monthlyBudget) || 0) - totalSpent;
+  
+  // RESTORED: Percentage logic for progress bar and color switching
   const percentageUsed = monthlyBudget > 0 ? (totalSpent / monthlyBudget) * 100 : 0;
   
   const chartData = [
@@ -128,6 +149,7 @@ function App() {
 
       <main className="flex-1 w-full px-6 sm:px-12 py-10 space-y-10">
         <div className="flex flex-col xl:flex-row gap-8">
+          {/* Card with Percentage Color Logic */}
           <div className={`relative overflow-hidden flex-1 p-12 rounded-[4rem] text-white shadow-2xl transition-all duration-700 ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
             <p className="text-xs font-bold uppercase tracking-[0.4em] opacity-70 mb-4 font-mono">Expenditure vs Remaining</p>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
@@ -140,9 +162,11 @@ function App() {
                  </div>
               </div>
             </div>
+            {/* Real-time Percentage Bar */}
             <div className="w-full bg-white/20 rounded-full h-5 p-1 shadow-inner">
               <div className="bg-white h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(percentageUsed, 100)}%` }}></div>
             </div>
+            <p className="mt-4 font-black text-sm opacity-90 tracking-widest uppercase">{percentageUsed.toFixed(1)}% OF BUDGET USED</p>
           </div>
 
           <div className="w-full xl:w-[400px] bg-white p-10 rounded-[4rem] border border-gray-100 shadow-xl flex flex-col justify-center">
@@ -190,7 +214,6 @@ function App() {
                   <input type="checkbox" checked={!isNeed} onChange={() => setIsNeed(false)} className="w-6 h-6 accent-rose-500 cursor-pointer" /> Want
                 </label>
               </div>
-              {/* RESPONSIVE SAVE BUTTON */}
               <button type="submit" className="w-full md:w-auto md:ml-auto px-16 py-6 bg-gray-900 text-white rounded-[2rem] font-black text-xl hover:bg-blue-600 active:scale-95 transition-all cursor-pointer shadow-lg mt-4 md:mt-0">
                 {editingId ? 'UPDATE' : 'SAVE'}
               </button>
@@ -234,9 +257,14 @@ function App() {
                 </div>
                 <div className="flex items-center gap-6">
                   <p className="font-black text-3xl tracking-tighter">₹{exp.amount.toLocaleString('en-IN')}</p>
-                  <button onClick={() => deleteExpense(exp.id)} className="text-gray-200 hover:text-rose-500 transition-colors cursor-pointer">
-                    <Trash2 size={24}/>
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button onClick={() => startEdit(exp)} className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white cursor-pointer transition-all">
+                      <Edit2 size={18}/>
+                    </button>
+                    <button onClick={() => deleteExpense(exp.id)} className="p-2 bg-red-50 text-red-200 hover:bg-red-500 hover:text-white cursor-pointer transition-all">
+                      <Trash2 size={18}/>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
