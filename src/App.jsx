@@ -42,7 +42,20 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleLogin = async () => { try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); } };
+  const handleLogin = async () => {
+  try {
+    // We will use Popup by default as it is more stable for "missing initial state" errors
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    // If popup is blocked by Safari, then we try redirect
+    if (e.code === 'auth/popup-blocked') {
+      await signInWithRedirect(auth, provider);
+    } else {
+      console.error(e);
+      alert("Login failed. Please ensure cookies are enabled in Safari settings.");
+    }
+  }
+};
   const handleLogout = () => signOut(auth);
 
   const updateBudget = async (val) => {
