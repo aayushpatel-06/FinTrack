@@ -93,9 +93,8 @@ function App() {
   ];
   const COLORS = ['#10b981', '#f43f5e'];
 
-  if (loading) return <div className="h-screen w-full flex items-center justify-center font-black text-blue-600 text-3xl animate-pulse">FINTRACK...</div>;
+  if (loading) return <div className="h-screen w-full flex items-center justify-center font-black text-blue-600 text-3xl animate-pulse tracking-tighter">FINTRACK...</div>;
 
-  // RESTORED LOGIN PAGE CSS
   if (!user) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 p-6">
@@ -130,14 +129,14 @@ function App() {
       <main className="flex-1 w-full px-6 sm:px-12 py-10 space-y-10">
         <div className="flex flex-col xl:flex-row gap-8">
           <div className={`relative overflow-hidden flex-1 p-12 rounded-[4rem] text-white shadow-2xl transition-all duration-700 ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
-            <p className="text-xs font-bold uppercase tracking-[0.4em] opacity-70 mb-4">Expenditure vs Remaining</p>
+            <p className="text-xs font-bold uppercase tracking-[0.4em] opacity-70 mb-4 font-mono">Expenditure vs Remaining</p>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
-              <h2 className="text-7xl sm:text-8xl font-black tracking-tighter">₹{totalSpent.toLocaleString()}</h2>
+              <h2 className="text-7xl sm:text-8xl font-black tracking-tighter drop-shadow-2xl">₹{totalSpent.toLocaleString('en-IN')}</h2>
               <div className="flex flex-col items-center gap-2">
                  {percentageUsed > 80 ? <TrendingUp size={48} className="animate-bounce" /> : <TrendingDown size={48} />}
                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 min-w-[200px]">
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Remaining Balance</p>
-                    <p className="text-3xl font-black">₹{remainingBalance.toLocaleString()}</p>
+                    <p className="text-3xl font-black tracking-tighter">₹{remainingBalance.toLocaleString('en-IN')}</p>
                  </div>
               </div>
             </div>
@@ -150,7 +149,7 @@ function App() {
             <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Budget Target</h3>
             <div className="flex items-center gap-4">
               <Settings className="text-blue-600" size={32} />
-              <input type="number" min="1" value={monthlyBudget} onChange={(e) => updateBudget(e.target.value)} onWheel={(e) => e.target.blur()} className="bg-transparent font-black text-5xl w-full outline-none" />
+              <input type="number" min="1" value={monthlyBudget} onChange={(e) => updateBudget(e.target.value)} onWheel={(e) => e.target.blur()} className="bg-transparent font-black text-5xl w-full outline-none text-gray-900" />
             </div>
           </div>
         </div>
@@ -158,43 +157,48 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={saveExpense} className="bg-white border border-gray-100 p-10 sm:p-14 rounded-[4.5rem] shadow-2xl space-y-8">
             <div className="flex flex-col gap-3">
-               <label htmlFor="amount-input" className="text-xs font-black text-blue-600 ml-6 uppercase tracking-widest">Amount (₹)</label>
-               <input id="amount-input" type="number" min="1" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} onWheel={(e) => e.target.blur()} className="w-full p-10 rounded-[3rem] bg-gray-50 text-6xl font-black outline-none" />
+               <label htmlFor="amount-input" className="text-xs font-black text-blue-600 ml-6 uppercase tracking-[0.4em]">Amount (₹)</label>
+               <input id="amount-input" type="number" min="1" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} onWheel={(e) => e.target.blur()} className="w-full p-10 rounded-[3rem] bg-gray-50 text-6xl font-black outline-none text-gray-900" />
             </div>
             
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center px-6">
-                <label className="text-[10px] font-black text-gray-400 uppercase">Category</label>
-                <button type="button" onClick={() => setShowAddCategory(!showAddCategory)} className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-1">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</label>
+                <button type="button" onClick={() => setShowAddCategory(!showAddCategory)} className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-1 cursor-pointer hover:underline">
                   {showAddCategory ? <><X size={12}/> Cancel</> : <><Plus size={12}/> Custom</>}
                 </button>
               </div>
 
               {showAddCategory ? (
                 <div className="flex gap-2">
-                  <input type="text" placeholder="New Category..." value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="flex-1 p-6 rounded-3xl bg-gray-50 font-black outline-none border-2 border-blue-100" />
-                  <button type="button" onClick={addCustomCategory} className="bg-blue-600 text-white px-8 rounded-3xl font-black">ADD</button>
+                  <input type="text" placeholder="New Category..." value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="flex-1 p-6 rounded-3xl bg-gray-50 font-black outline-none border-2 border-blue-100 text-gray-900" />
+                  <button type="button" onClick={addCustomCategory} className="bg-blue-600 text-white px-8 rounded-3xl font-black cursor-pointer">ADD</button>
                 </div>
               ) : (
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-8 rounded-[2.5rem] bg-gray-50 font-black text-2xl appearance-none outline-none ring-4 ring-transparent focus:ring-blue-50">
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-8 rounded-[2.5rem] bg-gray-50 font-black text-2xl appearance-none outline-none ring-4 ring-transparent focus:ring-blue-50 text-gray-900 cursor-pointer">
                   {categories.map(cat => <option key={cat}>{cat}</option>)}
                 </select>
               )}
             </div>
 
-            <div className="flex gap-12 px-6">
-              <label className="flex items-center gap-3 text-xl font-bold cursor-pointer">
-                <input type="checkbox" checked={isNeed} onChange={() => setIsNeed(true)} className="w-6 h-6 accent-emerald-500" /> Need
-              </label>
-              <label className="flex items-center gap-3 text-xl font-bold cursor-pointer">
-                <input type="checkbox" checked={!isNeed} onChange={() => setIsNeed(false)} className="w-6 h-6 accent-rose-500" /> Want
-              </label>
-              <button type="submit" className="ml-auto px-16 py-6 bg-gray-900 text-white rounded-[2rem] font-black text-xl hover:bg-blue-600 transition-all">SAVE</button>
+            <div className="flex flex-col md:flex-row gap-8 px-6 items-center">
+              <div className="flex gap-12 w-full md:w-auto">
+                <label className="flex items-center gap-3 text-xl font-bold cursor-pointer text-gray-600">
+                  <input type="checkbox" checked={isNeed} onChange={() => setIsNeed(true)} className="w-6 h-6 accent-emerald-500 cursor-pointer" /> Need
+                </label>
+                <label className="flex items-center gap-3 text-xl font-bold cursor-pointer text-gray-600">
+                  <input type="checkbox" checked={!isNeed} onChange={() => setIsNeed(false)} className="w-6 h-6 accent-rose-500 cursor-pointer" /> Want
+                </label>
+              </div>
+              {/* RESPONSIVE SAVE BUTTON */}
+              <button type="submit" className="w-full md:w-auto md:ml-auto px-16 py-6 bg-gray-900 text-white rounded-[2rem] font-black text-xl hover:bg-blue-600 active:scale-95 transition-all cursor-pointer shadow-lg mt-4 md:mt-0">
+                {editingId ? 'UPDATE' : 'SAVE'}
+              </button>
             </div>
           </form>
 
           <div className="bg-white p-12 rounded-[4.5rem] border border-gray-100 flex flex-col items-center shadow-xl">
-            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-8">Split</h3>
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-8">Visual Split</h3>
             <div style={{ width: '100%', height: '350px' }}>
               {mounted && (
                 <ResponsiveContainer>
@@ -202,19 +206,18 @@ function App() {
                     <Pie data={chartData} cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={10} dataKey="value">
                       {chartData.map((e, i) => <Cell key={i} fill={COLORS[i]} cornerRadius={20} stroke="none" />)}
                     </Pie>
-                    <Tooltip contentStyle={{ borderRadius: '20px', fontWeight: '900' }} />
+                    <Tooltip contentStyle={{ borderRadius: '20px', fontWeight: '900', border: 'none' }} />
                   </PieChart>
                 </ResponsiveContainer>
               )}
             </div>
-            <div className="flex gap-16 mt-4 font-black text-xs tracking-widest uppercase">
+            <div className="flex gap-16 mt-4 font-black text-xs tracking-[0.3em] uppercase">
               <span className="text-emerald-500">● Needs</span>
               <span className="text-rose-500">● Wants</span>
             </div>
           </div>
         </div>
 
-        {/* RESTORED RECENT ACTIVITY BLOCK */}
         <div className="space-y-6">
           <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.4em] ml-6">Recent Activity</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 pb-20">
@@ -223,16 +226,16 @@ function App() {
                 <div className="flex items-center gap-5">
                   <div className={`w-3 h-3 rounded-full ${exp.isNeed ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
                   <div>
-                    <p className="font-black text-xl text-gray-800 tracking-tighter">{exp.category}</p>
-                    <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                      {exp.createdAt?.toDate().toLocaleDateString() || '...'}
+                    <p className="font-black text-2xl text-gray-800 tracking-tighter italic">{exp.category}</p>
+                    <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                      {exp.createdAt?.toDate().toLocaleDateString() || 'Saving...'}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <p className="font-black text-2xl tracking-tighter">₹{exp.amount}</p>
+                <div className="flex items-center gap-6">
+                  <p className="font-black text-3xl tracking-tighter">₹{exp.amount.toLocaleString('en-IN')}</p>
                   <button onClick={() => deleteExpense(exp.id)} className="text-gray-200 hover:text-rose-500 transition-colors cursor-pointer">
-                    <Trash2 size={20}/>
+                    <Trash2 size={24}/>
                   </button>
                 </div>
               </div>
