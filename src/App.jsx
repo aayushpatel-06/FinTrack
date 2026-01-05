@@ -125,7 +125,7 @@ function App() {
           </div>
           <h1 className="text-7xl font-black text-gray-900 mb-12 tracking-tighter italic">FinTrack</h1>
           <button onClick={handleLogin} className="group relative w-full bg-gray-900 text-white py-6 rounded-[2rem] font-bold text-2xl overflow-hidden active:scale-95 shadow-2xl cursor-pointer transition-all">
-            <span className="relative z-10">Continue with Google</span>
+            <span className="relative z-10">Sign Up/Login</span>
             <div className="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
           </button>
         </div>
