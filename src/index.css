@@ -1,5 +1,9 @@
 @import "tailwindcss";
-
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+  }
+}
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
