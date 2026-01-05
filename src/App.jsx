@@ -12,13 +12,24 @@ function App() {
   const [user, setUser] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('Food');
+  const [categories, setCategories] = useState(['Food', 'Travel', 'Study', 'Fun']);
+  const [newCategory, setNewCategory] = useState('');
+  const [showAddCategory, setShowAddCategory] = useState(false);
   const [isNeed, setIsNeed] = useState(true); 
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false); 
   const [monthlyBudget, setMonthlyBudget] = useState(10000);
   const [editingId, setEditingId] = useState(null);
 
+  const addCustomCategory = () => {
+  if (newCategory && !categories.includes(newCategory)) {
+    setCategories([...categories, newCategory]);
+    setCategory(newCategory); // Set the dropdown to the new one
+    setNewCategory('');
+    setShowAddCategory(false);
+  }
+};
+  
   useEffect(() => {
     setMounted(true);
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -92,6 +103,11 @@ function App() {
   const percentageUsed = (monthlyBudget && parseFloat(monthlyBudget) > 0) 
   ? (totalSpent / parseFloat(monthlyBudget)) * 100 
   : 0;
+  // Place this inside the App function, just before the return statement
+  const totalSpent = expenses.reduce((sum, item) => sum + item.amount, 0);
+
+  // NEW LOGIC: Calculate remaining balance
+  const remainingBalance = monthlyBudget - totalSpent;
   
   const chartData = [
     { name: 'Needs', value: expenses.filter(e => e.isNeed).reduce((s, i) => s + i.amount, 0) || 0.1 },
@@ -120,23 +136,50 @@ function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col">
-      <header className="sticky top-0 z-50 w-full px-6 sm:px-12 py-5 backdrop-blur-lg bg-white/70 border-b border-white/20 flex justify-between items-center shadow-sm">
-        <h1 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3 tracking-tighter">
-          <Wallet size={32} className="text-blue-600" /> FinTrack
-        </h1>
-        <button onClick={handleLogout} className="group flex items-center gap-2 bg-white px-6 py-3 rounded-2xl font-bold text-gray-500 hover:text-red-500 transition-all border border-gray-100 cursor-pointer">
-          <LogOut size={20} /> Logout
-        </button>
-      </header>
+      <header className="sticky top-0 z-50 ... flex justify-between items-center shadow-sm">
+  <h1 className="text-3xl font-black ...">
+    <Wallet size={32} className="text-blue-600" /> FinTrack
+  </h1>
+
+  {/* REPLACE YOUR OLD LOGOUT BUTTON WITH THIS BLOCK */}
+  <div className="flex items-center gap-3 sm:gap-6">
+    {user?.photoURL && (
+      <img 
+        src={user.photoURL} 
+        alt="Profile" 
+        className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-md"
+      />
+    )}
+    <button onClick={handleLogout} className="group flex items-center gap-2 ...">
+      <LogOut size={20} /> <span className="hidden sm:inline">Logout</span>
+    </button>
+  </div>
+</header>
+
 
       <main className="flex-1 w-full px-6 sm:px-12 py-10 space-y-10">
         <div className="flex flex-col xl:flex-row gap-8">
-          <div className={`relative overflow-hidden flex-1 p-12 rounded-[4rem] text-white shadow-2xl transition-all duration-700 ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
-            <p className="text-xs font-bold uppercase tracking-[0.4em] opacity-70 mb-4 font-mono">Real-time Expenditure</p>
-            <h2 className="text-7xl sm:text-9xl font-black tracking-tighter mb-10 drop-shadow-2xl">₹{totalSpent.toLocaleString('en-IN')}</h2>
-            <div className="w-full bg-white/20 rounded-full h-5 p-1.5 shadow-inner">
-              <div className="bg-white h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(percentageUsed, 100)}%` }}></div>
-            </div>
+         <div className={`relative ... ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
+  <p className="...">Real-time Expenditure</p>
+  
+  {/* UPDATE THIS SECTION */}
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
+    <h2 className="text-7xl sm:text-9xl font-black tracking-tighter drop-shadow-2xl">
+      ₹{totalSpent.toLocaleString('en-IN')}
+    </h2>
+    
+    <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 min-w-[180px]">
+      <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Remaining</p>
+      <p className="text-3xl font-black tracking-tighter">
+        ₹{remainingBalance.toLocaleString('en-IN')}
+      </p>
+    </div>
+  </div>
+
+  <div className="w-full bg-white/20 rounded-full h-5 ...">
+    <div className="bg-white h-full ..." style={{ width: `${Math.min(percentageUsed, 100)}%` }}></div>
+  </div>
+</div>
             <div className="flex justify-between mt-8 items-center">
                <span className="font-black text-xl bg-black/10 px-6 py-2 rounded-2xl uppercase text-xs tracking-[0.2em]">{percentageUsed.toFixed(1)}% Limit Used</span>
                {percentageUsed > 80 ? <TrendingUp size={48} className="animate-bounce" /> : <TrendingDown size={48} />}
