@@ -49,7 +49,10 @@ function App() {
     setMonthlyBudget(val);
     const num = parseFloat(val);
     if (user && !isNaN(num) && num > 0) {
-      await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });
+      try{
+      await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });}
+      catch (e) {
+        console.error("Error updating budget:",e);}
     }
   };
 
