@@ -159,22 +159,10 @@ function App() {
 
       <main className="flex-1 w-full px-6 sm:px-12 py-10 space-y-10">
         <div className="flex flex-col xl:flex-row gap-8">
-         <div className={`relative ... ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
-  <p className="...">Real-time Expenditure</p>
-  
-  {/* UPDATE THIS SECTION */}
-  <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
-    <h2 className="text-7xl sm:text-9xl font-black tracking-tighter drop-shadow-2xl">
-      ₹{totalSpent.toLocaleString('en-IN')}
-    </h2>
-    
-    <div className="bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/20 min-w-[180px]">
-      <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Remaining</p>
-      <p className="text-3xl font-black tracking-tighter">
-        ₹{remainingBalance.toLocaleString('en-IN')}
-      </p>
-    </div>
-  </div>
+           <div className={`relative overflow-hidden flex-1 p-12 rounded-[4rem] text-white shadow-2xl transition-all duration-700 ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
+            <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+            <p className="relative z-10 text-xs font-bold uppercase tracking-[0.4em] opacity-70 mb-4 font-mono">Real-time Expenditure</p>
+            <h2 className="relative z-10 text-7xl sm:text-9xl font-black tracking-tighter mb-10 drop-shadow-2xl">₹{totalSpent.toLocaleString('en-IN')}</h2>
 
   <div className="w-full bg-white/20 rounded-full h-5 ...">
     <div className="bg-white h-full ..." style={{ width: `${Math.min(percentageUsed, 100)}%` }}></div>
@@ -212,8 +200,6 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
-)
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={saveExpense} className="bg-white/80 backdrop-blur-xl border border-white p-10 sm:p-14 rounded-[4.5rem] shadow-2xl space-y-10">
             <div className="flex flex-col gap-3">
