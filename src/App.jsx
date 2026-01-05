@@ -45,14 +45,12 @@ function App() {
   const handleLogout = () => signOut(auth);
   const handleLogin = async () => { try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); } };
 
+  // Sync budget only if value is 1 or greater
   const updateBudget = async (val) => {
     setMonthlyBudget(val);
     const num = parseFloat(val);
-    if (user && !isNaN(num) && num > 0) {
-      try{
-      await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });}
-      catch (e) {
-        console.error("Error updating budget:",e);}
+    if (user && !isNaN(num) && num >= 1) {
+      await setDoc(doc(db, 'users', user.uid), { budget: num }, { merge: true });
     }
   };
 
@@ -76,8 +74,8 @@ function App() {
   const saveExpense = async (e) => {
     e.preventDefault(); 
     const numAmount = parseFloat(amount);
-    if (!amount || numAmount <= 0) {
-      alert("Please enter a positive amount");
+    if (!amount || numAmount < 1) {
+      alert("Please enter a positive amount greater than 1");
       return;
     }
     if (!user) return;
@@ -115,7 +113,7 @@ function App() {
           </div>
           <h1 className="text-5xl font-black text-gray-900 mb-8 tracking-tighter italic">FinTrack</h1>
           <button onClick={handleLogin} className="group relative w-full bg-gray-900 text-white py-5 rounded-[1.5rem] font-bold text-xl overflow-hidden active:scale-95 shadow-2xl cursor-pointer transition-all">
-            <span className="relative z-10">Sign Up/Login</span>
+            <span className="relative z-10">Continue with Google</span>
             <div className="absolute inset-0 bg-blue-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
           </button>
         </div>
@@ -139,6 +137,7 @@ function App() {
 
       <main className="flex-1 w-full px-6 sm:px-10 py-8 space-y-8">
         <div className="flex flex-col xl:flex-row gap-6">
+          {/* Expenditure Card */}
           <div className={`relative overflow-hidden flex-1 p-10 rounded-[3rem] text-white shadow-2xl transition-all duration-700 ${percentageUsed > 80 ? 'bg-rose-500' : 'bg-blue-600'}`}>
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70 mb-3 font-mono">Expenditure vs Remaining</p>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-8">
@@ -154,15 +153,28 @@ function App() {
             <div className="w-full bg-white/20 rounded-full h-4 p-1 shadow-inner">
               <div className="bg-white h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(percentageUsed, 100)}%` }}></div>
             </div>
-            <p className="mt-3 font-black text-xs opacity-90 tracking-widest uppercase">{percentageUsed.toFixed(1)}% USED</p>
           </div>
 
+          {/* Budget Target Card with Validation Message */}
           <div className="w-full xl:w-[350px] bg-white p-8 rounded-[3rem] border border-gray-100 shadow-lg flex flex-col justify-center">
             <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Budget Target</h3>
             <div className="flex items-center gap-3">
               <Settings className="text-blue-600" size={28} />
-              <input type="number" min="1" value={monthlyBudget} onChange={(e) => updateBudget(e.target.value)} onWheel={(e) => e.target.blur()} className="bg-transparent font-black text-3xl w-full outline-none text-gray-900" />
+              <input 
+                type="number" 
+                min="1" 
+                value={monthlyBudget} 
+                onChange={(e) => updateBudget(e.target.value)} 
+                onKeyDown={(e) => ["-", "e", "E"].includes(e.key) && e.preventDefault()}
+                onWheel={(e) => e.target.blur()} 
+                className="bg-transparent font-black text-3xl w-full outline-none text-gray-900" 
+              />
             </div>
+            {monthlyBudget !== '' && parseFloat(monthlyBudget) < 1 && (
+              <p className="text-[9px] text-rose-500 font-bold uppercase mt-2 tracking-wider animate-pulse">
+                Value must be greater than 1
+              </p>
+            )}
           </div>
         </div>
 
@@ -170,7 +182,20 @@ function App() {
           <form onSubmit={saveExpense} className="bg-white border border-gray-100 p-8 sm:p-10 rounded-[3.5rem] shadow-xl space-y-6">
             <div className="flex flex-col gap-2">
                <label htmlFor="amount-input" className="text-[10px] font-black text-blue-600 ml-4 uppercase tracking-widest">Amount (₹)</label>
-               <input id="amount-input" type="number" min="1" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} onWheel={(e) => e.target.blur()} className="w-full p-8 rounded-[2rem] bg-gray-50 text-4xl font-black outline-none text-gray-900 border-none ring-2 ring-gray-100 focus:ring-blue-100 transition-all" />
+               <input 
+                id="amount-input" 
+                type="number" 
+                min="1" 
+                step="0.01" 
+                value={amount} 
+                onChange={(e) => setAmount(e.target.value)} 
+                onKeyDown={(e) => ["-", "e", "E"].includes(e.key) && e.preventDefault()}
+                onWheel={(e) => e.target.blur()} 
+                className="w-full p-8 rounded-[2rem] bg-gray-50 text-4xl font-black outline-none text-gray-900 ring-2 ring-gray-100 focus:ring-blue-100 transition-all" 
+               />
+               {amount !== '' && parseFloat(amount) < 1 && (
+                 <p className="text-[9px] text-rose-500 font-bold uppercase mt-1 px-4">Value must be greater than 1</p>
+               )}
             </div>
             
             <div className="flex flex-col gap-2">
@@ -187,7 +212,7 @@ function App() {
                   <button type="button" onClick={addCustomCategory} className="bg-blue-600 text-white px-6 rounded-2xl font-black text-xs cursor-pointer">ADD</button>
                 </div>
               ) : (
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-6 rounded-[1.5rem] bg-gray-50 font-black text-lg appearance-none outline-none ring-2 ring-transparent focus:ring-blue-50 text-gray-900 cursor-pointer">
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-6 rounded-[1.5rem] bg-gray-50 font-black text-lg appearance-none outline-none text-gray-900 cursor-pointer">
                   {categories.map(cat => <option key={cat}>{cat}</option>)}
                 </select>
               )}
@@ -202,7 +227,7 @@ function App() {
                   <input type="checkbox" checked={!isNeed} onChange={() => setIsNeed(false)} className="w-5 h-5 accent-rose-500 cursor-pointer" /> Want
                 </label>
               </div>
-              <button type="submit" className="w-full md:w-auto md:ml-auto px-12 py-5 bg-gray-900 text-white rounded-[1.5rem] font-black text-lg hover:bg-blue-600 active:scale-95 transition-all cursor-pointer shadow-md mt-2 md:mt-0 uppercase tracking-widest">
+              <button type="submit" className="w-full md:w-auto md:ml-auto px-12 py-5 bg-gray-900 text-white rounded-[1.5rem] font-black text-lg hover:bg-blue-600 active:scale-95 transition-all cursor-pointer shadow-md uppercase tracking-widest">
                 {editingId ? 'UPDATE' : 'SAVE'}
               </button>
             </div>
@@ -246,12 +271,8 @@ function App() {
                 <div className="flex items-center gap-4">
                   <p className="font-black text-xl tracking-tighter">₹{exp.amount.toLocaleString('en-IN')}</p>
                   <div className="flex gap-1">
-                    <button onClick={() => startEdit(exp)} className="p-2 text-gray-300 hover:text-blue-600 transition-colors cursor-pointer">
-                      <Edit2 size={16}/>
-                    </button>
-                    <button onClick={() => deleteExpense(exp.id)} className="p-2 text-gray-300 hover:text-rose-500 transition-colors cursor-pointer">
-                      <Trash2 size={16}/>
-                    </button>
+                    <button onClick={() => startEdit(exp)} className="p-2 text-gray-300 hover:text-blue-600 transition-colors cursor-pointer"><Edit2 size={16}/></button>
+                    <button onClick={() => deleteExpense(exp.id)} className="p-2 text-gray-300 hover:text-rose-500 transition-colors cursor-pointer"><Trash2 size={16}/></button>
                   </div>
                 </div>
               </div>
