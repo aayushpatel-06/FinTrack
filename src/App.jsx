@@ -199,7 +199,7 @@ function App() {
               </div>
             </div>
           </div>
-        </div>
+        </main>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={saveExpense} className="bg-white/80 backdrop-blur-xl border border-white p-10 sm:p-14 rounded-[4.5rem] shadow-2xl space-y-10">
             <div className="flex flex-col gap-3">
