@@ -463,19 +463,7 @@ function App() {
   }
   
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#dcfce7] via-white to-[#dcfce7] text-slate-900 relative overflow-hidden font-sans">
-      
-      {/* 1. DYNAMIC GRID PATTERN */}
-      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none"
-           style={{ backgroundImage: `linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)`, backgroundSize: '32px 32px' }}>
-      </div>
-
-      {/* 2. AMBIENT BREATHING BLOBS */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[100px] animate-blob mix-blend-multiply filter"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-200/40 rounded-full blur-[100px] animate-blob animation-delay-2000 mix-blend-multiply filter"></div>
-         <div className="absolute top-[20%] left-[20%] w-[400px] h-[400px] bg-pink-200/40 rounded-full blur-[100px] animate-blob animation-delay-4000 mix-blend-multiply filter"></div>
-      </div>
+    <div className="min-h-screen w-full flex flex-col bg-[#dcfce7] text-slate-900">
 
       {/* --- ADD NEW CATEGORY MODAL --- */}
       {showAddModal && (
