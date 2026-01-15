@@ -84,8 +84,18 @@ function LoadingScreen({ quote, theme }) {
           <div className="absolute inset-4 rounded-full border-t-2 border-fuchsia-300 animate-spin [animation-duration:2.1s]" />
 
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="p-4 rounded-3xl bg-white/10 border border-white/10 shadow-[0_0_70px_rgba(99,102,241,0.25)]">
-              <Wallet size={34} className="text-white" strokeWidth={2.6} />
+            <div
+              className={`p-4 rounded-3xl border shadow-[0_0_70px_rgba(99,102,241,0.25)] ${
+                theme === "dark"
+                  ? "bg-white/10 border-white/10"
+                  : "bg-black/10 border-black/10"
+              }`}
+            >
+              <Wallet
+                size={34}
+                className={theme === "dark" ? "text-white" : "text-slate-900"}
+                strokeWidth={2.6}
+              />
             </div>
           </div>
         </div>
@@ -114,12 +124,17 @@ function LoadingScreen({ quote, theme }) {
 function ThemeToggleIOS({ theme, setTheme }) {
   const isDark = theme === "dark";
 
+  const isIOS =
+  typeof navigator !== "undefined" &&
+  /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+  !window.MSStream;
+
   return (
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      className={`relative w-[56px] h-[32px] rounded-full border transition-all duration-300 flex items-center px-[3px] active:scale-95 ${
+      className={`relative w-[48px] h-[28px] sm:w-[56px] sm:h-[32px] rounded-full border transition-all duration-300 flex items-center px-[3px] active:scale-95 ${
         isDark
           ? "bg-white/10 border-white/15"
           : "bg-black/5 border-slate-300"
@@ -127,10 +142,8 @@ function ThemeToggleIOS({ theme, setTheme }) {
     >
       {/* Knob */}
       <span
-        className={`absolute top-[3px] w-[26px] h-[26px] rounded-full transition-all duration-300 flex items-center justify-center shadow-lg ${
-          isDark
-            ? "left-[27px] bg-white text-black"
-            : "left-[3px] bg-slate-900 text-white"
+        className={`absolute top-[3px] w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rounded-full transition-transform duration-300 flex items-center justify-center shadow-lg ${
+          isDark ? "left-[23px] sm:left-[27px] bg-white text-black" : "left-[3px] bg-slate-900 text-white"
         }`}
       >
         {isDark ? (
@@ -160,6 +173,7 @@ function ThemeToggleIOS({ theme, setTheme }) {
       </span>
 
       {/* subtle glow */}
+      {!isIOS && (
       <span
         className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
           isDark ? "opacity-100" : "opacity-0"
@@ -168,6 +182,7 @@ function ThemeToggleIOS({ theme, setTheme }) {
           boxShadow: "0 0 25px rgba(99,102,241,0.18)",
         }}
       />
+    )}
     </button>
   );
 }
@@ -796,36 +811,40 @@ export default function App() {
       {/* header */}
       <header className={`sticky top-0 z-50 ${T.header}`}>
         <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-black tracking-tight text-xl">
+          <div className="flex items-center gap-2 font-black tracking-tight text-lg sm:text-xl">
             <div className={`p-2 rounded-xl ${T.chip}`}>
               <Wallet size={22} />
             </div>
             Fin<span className="text-emerald-400">Track</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Theme toggle */}
-            <ThemeToggleIOS theme={theme} setTheme={setTheme} />
+            <div className="scale-[0.92] sm:scale-100">
+              <ThemeToggleIOS theme={theme} setTheme={setTheme} />
+            </div>
 
-            <div className={`flex items-center gap-2 rounded-full px-3 py-1 ${T.chip}`}>
+            {/* 🔥 Streak badge only on sm and above */}
+            <div className="hidden sm:flex items-center gap-2 rounded-full px-3 py-1 bg-white/10 border border-white/10">
               <Flame className="text-orange-400" size={16} />
               <span className="font-black text-sm">{getStreak()}</span>
             </div>
 
+            {/* profile */}
             <img
               src={user?.photoURL}
               alt="User"
-              className="w-9 h-9 rounded-full border-2 border-emerald-400"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-emerald-400"
             />
 
+            {/* logout icon only on mobile, full text on desktop */}
             <button
               onClick={handleLogout}
-              className={`flex items-center gap-2 font-black transition-colors ${
-                theme === "dark" ? "text-white/70 hover:text-rose-400" : "text-slate-600 hover:text-rose-600"
-              }`}
+              className="p-2 sm:p-0 sm:flex sm:items-center sm:gap-2 font-black text-white/70 hover:text-rose-400 transition-colors"
             >
-              <LogOut size={20} />
-              <span className="hidden sm:inline">Logout</span>
+              <LogOut size={18} className="sm:hidden" />
+              <LogOut size={20} className="hidden sm:block" />
+              <span className="hidden sm:inline text-xs">Logout</span>
             </button>
           </div>
         </div>
@@ -1226,9 +1245,18 @@ export default function App() {
                 <PetIcon size={44} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className={`text-2xl font-black ${pet.color}`}>{pet.name}</h3>
-                  <span className={`text-[10px] font-black uppercase tracking-[0.25em] px-3 py-1 rounded-full ${T.cardSoft} ${T.muted}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <h3 className={`text-2xl font-black leading-tight ${pet.color}`}>
+                    {pet.name}
+                  </h3>
+
+                  <span
+                    className={`w-fit text-[10px] font-black uppercase tracking-[0.22em] px-3 py-1 rounded-full ${
+                      theme === "dark"
+                        ? "bg-black/30 border border-white/10 text-white/60"
+                        : "bg-white border border-slate-200 text-slate-500"
+                    }`}
+                  >
                     Lvl {getStreak() < 3 ? "1" : getStreak() < 10 ? "2" : "3"}
                   </span>
                 </div>
