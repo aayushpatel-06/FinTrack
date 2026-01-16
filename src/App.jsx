@@ -840,7 +840,7 @@ export default function App() {
             {/* logout icon only on mobile, full text on desktop */}
             <button
               onClick={handleLogout}
-              className="p-2 sm:p-0 sm:flex sm:items-center sm:gap-2 font-black text-white/70 hover:text-rose-400 transition-colors"
+              className="p-2 sm:p-0 sm:flex sm:items-center sm:gap-2 font-black text-rose-400 transition-colors"
             >
               <LogOut size={18} className="sm:hidden" />
               <LogOut size={20} className="hidden sm:block" />
@@ -849,6 +849,32 @@ export default function App() {
           </div>
         </div>
       </header>
+      
+      {/* ✅ Mobile Streak Bar */}
+      <div className="sm:hidden px-5 pt-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-orange-500/15 border border-orange-500/20">
+                <Flame size={16} className="text-orange-400" />
+              </div>
+
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.35em] font-black text-white/45">
+                  Streak
+                </p>
+                <p className="font-black text-lg leading-none">
+                  {getStreak()} Days
+                </p>
+              </div>
+            </div>
+
+            <div className="text-[12px] font-black uppercase tracking-[0.15em] text-white/60">
+              Keep tracking daily
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="relative z-10 max-w-6xl mx-auto px-5 py-10 space-y-8">
         {/* Safe to Spend */}
